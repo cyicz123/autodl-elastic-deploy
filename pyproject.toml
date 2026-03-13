@@ -19,8 +19,15 @@ dev = [
     "responses>=0.22.0",
 ]
 
+[tool.setuptools]
+py-modules = ["queue_submit"]
+
+[tool.setuptools.package-dir]
+queue_submit = "skills/autodl-elastic-deploy"
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = [".", "skills/autodl-elastic-deploy"]
 python_files = "test_*.py"
 python_classes = "Test*"
 python_functions = "test_*"
@@ -35,7 +42,7 @@ markers = [
 ]
 
 [tool.coverage.run]
-source = ["queue_submit"]
+source = ["skills/autodl-elastic-deploy"]
 omit = [
     "tests/*",
     "*/conftest.py",

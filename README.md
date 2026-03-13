@@ -5,7 +5,7 @@ An agent skill for batch scheduling and managing GPU containers via the AutoDL P
 ## Install
 
 ```bash
-npx skills add https://github.com/cyicz123/autodl-elastic-deploy
+npx skills add https://github.com/cyicz123/autodl-elastic-deploy --skill autodl-elastic-deploy
 ```
 
 ### Options
@@ -74,12 +74,26 @@ AUTODL_TOKEN=<your_token>
 
 ```
 autodl-elastic-deploy/
-├── SKILL.md            # Skill definition (agent reads this)
-├── queue_submit.py     # Queued deployment submission script
-├── api-reference.md    # Full API parameters & response formats
-├── examples.md         # Common scenario code examples
-├── .env.example        # Token configuration template
-├── .env                # Your actual token (git-ignored)
+├── skills/
+│   └── autodl-elastic-deploy/    # Skill package
+│       ├── SKILL.md              # Main skill definition (agent reads this)
+│       ├── api-reference.md      # Full API parameters & response formats
+│       ├── examples.md           # Common scenario code examples
+│       └── queue_submit.py       # Queued deployment submission script
+│       ├── .env.example          # Token configuration template
+│       └── .env                  # Your actual token (git-ignored)
+├── tests/                        # Test suite (100% coverage)
+│   ├── conftest.py
+│   ├── test_api.py
+│   ├── test_dependencies.py
+│   ├── test_fetch_gpu_stock.py
+│   ├── test_fetch_images.py
+│   ├── test_main_flow.py
+│   ├── test_token_loader.py
+│   ├── test_utils.py
+│   └── test_validate_schema.py
+├── pyproject.toml                # Project configuration & pytest settings
+├── requirements-dev.txt          # Development dependencies
 └── .gitignore
 ```
 
@@ -94,7 +108,7 @@ AutoDL doesn't natively support queuing when GPU resources are unavailable. `que
 For impossible requirements (non-existent GPU types, invalid images, contradictory parameters), the script exits immediately with structured JSON errors so the agent can ask the user to correct them.
 
 ```bash
-python queue_submit.py deploy.json --interval 30 --timeout 3600
+python skills/autodl-elastic-deploy/queue_submit.py deploy.json --interval 30 --timeout 3600
 ```
 
 | Error Type | Meaning |
@@ -109,10 +123,40 @@ python queue_submit.py deploy.json --interval 30 --timeout 3600
 
 | File | Description |
 |------|-------------|
-| [SKILL.md](SKILL.md) | Core skill instructions, concepts, and quick reference |
-| [queue_submit.py](queue_submit.py) | Queued submission with validation and GPU polling |
-| [api-reference.md](api-reference.md) | Complete API parameters, response schemas, and gotchas |
-| [examples.md](examples.md) | 7 ready-to-use scenario examples (deploy, scale, debug, etc.) |
+| [skills/autodl-elastic-deploy/SKILL.md](skills/autodl-elastic-deploy/SKILL.md) | Core skill instructions, concepts, and quick reference |
+| [skills/autodl-elastic-deploy/queue_submit.py](skills/autodl-elastic-deploy/queue_submit.py) | Queued submission with validation and GPU polling |
+| [skills/autodl-elastic-deploy/api-reference.md](skills/autodl-elastic-deploy/api-reference.md) | Complete API parameters, response schemas, and gotchas |
+| [skills/autodl-elastic-deploy/examples.md](skills/autodl-elastic-deploy/examples.md) | 7 ready-to-use scenario examples (deploy, scale, debug, etc.) |
+
+## Testing
+
+This project includes a comprehensive test suite with **100% code coverage**.
+
+### Install Dependencies
+
+```bash
+# Install dev dependencies
+pip install -r requirements-dev.txt
+```
+
+### Run Tests
+
+```bash
+python -m pytest -v --cov=skills/autodl-elastic-deploy
+```
+
+### Test Structure
+
+| Test File | Coverage |
+|-----------|----------|
+| `test_token_loader.py` | Token loading from env/file |
+| `test_utils.py` | Helper functions (JSON output, config loader) |
+| `test_validate_schema.py` | Config validation logic |
+| `test_api.py` | API wrapper functions |
+| `test_fetch_images.py` | Image fetching with pagination |
+| `test_fetch_gpu_stock.py` | GPU stock parsing |
+| `test_main_flow.py` | End-to-end deployment flow |
+| `test_dependencies.py` | Dependency checking (curl, jq) |
 
 ## Compatibility
 
