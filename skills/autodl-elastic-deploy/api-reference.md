@@ -48,7 +48,11 @@
 
 | 参数 | 类型 | 必须 | 说明 |
 |------|------|------|------|
-| cuda_v | Int | 是 | CUDA 版本值（如 118 表示 11.8） |
+| dc_list | List\<String\> | 是 | 可调度数据中心/区域标识列表 |
+| service_6006_port_protocol | String | 否 | 6006 端口协议，如 `http` |
+| service_6008_port_protocol | String | 否 | 6008 端口协议，如 `http` |
+| cuda_v_from | Int | 是 | CUDA 最低版本值（如 118 表示 11.8） |
+| cuda_v_to | Int | 是 | CUDA 最高版本值（如 122 表示 12.2） |
 | gpu_name_set | List\<String\> | 是 | 可调度的 GPU 型号列表 |
 | gpu_num | Int | 是 | 所需 GPU 数量 |
 | memory_size_from | Int | 是 | 内存下限（GB） |
@@ -315,6 +319,27 @@ ls /data ; process ; true
         {"RTX 4090": {"idle_gpu_num": 215, "total_gpu_num": 2285}},
         {"RTX 3080 Ti": {"idle_gpu_num": 20, "total_gpu_num": 392}}
     ]
+}
+```
+
+## 12. 获取区域 GPU 库存
+
+**POST** `/api/v1/dev/machine/region/gpu_stock`
+
+### 请求参数
+
+| 参数 | 类型 | 必须 | 说明 |
+|------|------|------|------|
+| region_sign | String | 否 | 区域标识 |
+| dc_list | List\<String\> | 否 | 数据中心/区域标识列表 |
+
+### 响应
+
+响应 data 结构与全局库存一致，CLI 会归一化为：
+
+```json
+{
+    "RTX 4090": {"idle": 215, "total": 2285}
 }
 ```
 
