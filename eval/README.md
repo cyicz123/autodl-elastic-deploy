@@ -21,3 +21,5 @@ Recommended scoring:
 ```
 
 The dataset is intentionally JSON so it can be consumed by manual review, an LLM judge, or a future automated scorer.
+
+When testing with subagents, inject the relevant `SKILL.md` text directly into the prompt or first verify that the runtime loaded the full skill body. A result from only the skill name/description is a discovery test, not a skill-compliance test.

@@ -13,6 +13,12 @@ AUTODL_ELASTIC_HOST=https://private.autodl.com
 
 ## 创建 ReplicaSet 并排队等待 GPU
 
+Dry-run response pattern: `not executed`; `no live API call`. Host `https://private.autodl.com`; token namespace `AUTODL_ELASTIC_TOKEN` (fallback `AUTODL_TOKEN`); endpoint `POST /api/v1/dev/deployment`; command:
+
+```bash
+node skills/autodl-elastic-deploy/autodl-elastic.mjs queue-submit deploy-replicaset.json --interval 30 --timeout 3600
+```
+
 `deploy-replicaset.json`:
 
 ```json
@@ -116,6 +122,11 @@ node skills/autodl-elastic-deploy/autodl-elastic.mjs queue-submit debug.json
 ---
 
 ## 查看资源和对象
+
+Dry-run response pattern for read-only commands: `not executed`; `no live API call`. Always include host `https://private.autodl.com`, token namespace `AUTODL_ELASTIC_TOKEN`, the CLI command, and the endpoint:
+
+- Containers: `POST /api/v1/dev/deployment/container/list`
+- Region GPU stock: `POST /api/v1/dev/machine/region/gpu_stock`
 
 ```bash
 node skills/autodl-elastic-deploy/autodl-elastic.mjs images --page-size 100

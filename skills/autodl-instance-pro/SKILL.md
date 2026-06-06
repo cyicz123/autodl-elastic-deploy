@@ -17,6 +17,16 @@ Use this skill for AutoDL public cloud container instance Pro resources.
 
 Do not reuse Elastic private-cloud host/token variables. `AUTODL_ELASTIC_HOST` and `AUTODL_ELASTIC_TOKEN` belong to the sibling elastic deployment skill only.
 
+## Dry-run Response Checklist
+
+When the user asks to show commands, review a payload, dry-run, or not execute, do not call AutoDL. The answer must say `not executed` and `no live API call`, then include:
+
+- CLI command, such as `node <SKILL_DIR>/autodl-pro.mjs create --json <config.json>`
+- Host: `https://api.autodl.com`, unless `AUTODL_PRO_HOST` overrides it
+- Token namespace: `AUTODL_PRO_TOKEN`, fallback `AUTODL_TOKEN`
+- Endpoint when known, such as `POST /api/v1/dev/instance/pro/create`, `POST /api/v1/dev/instance/pro/power_on`, or `POST /api/v1/dev/instance/pro/image/save`
+- JSON payload/body for create, power-on, save-image, release, and other state-changing operations
+
 ## Commands
 
 ```bash
@@ -43,6 +53,29 @@ Release is destructive and the CLI does not silently power off first.
 node <SKILL_DIR>/autodl-pro.mjs status pro-xxxxxxxx
 node <SKILL_DIR>/autodl-pro.mjs power-off pro-xxxxxxxx
 node <SKILL_DIR>/autodl-pro.mjs release pro-xxxxxxxx
+```
+
+## Operation Payloads
+
+Power-on calls `POST /api/v1/dev/instance/pro/power_on` with:
+
+```json
+{
+  "instance_uuid": "pro-xxxxxxxx",
+  "payload": "gpu",
+  "start_command": "bash /root/start.sh"
+}
+```
+
+`payload` is always `"gpu"`. Omit `start_command` only when the user did not provide one.
+
+Save-image calls `POST /api/v1/dev/instance/pro/image/save` with:
+
+```json
+{
+  "instance_uuid": "pro-xxxxxxxx",
+  "image_name": "my-saved-image"
+}
 ```
 
 ## Create Config
@@ -102,7 +135,7 @@ The CLI prints structured JSON to stdout. On error:
 }
 ```
 
-For `token_missing`, write `AUTODL_PRO_TOKEN` in this skill's `.env`. For `validation_error`, fix the config before retrying. For release, ask the user to confirm the target instance and power-off state before calling `release`.
+For `token_missing`, write `AUTODL_PRO_TOKEN` in this skill's `.env`. For `validation_error`, fix the config used by `node <SKILL_DIR>/autodl-pro.mjs create --json <config.json>` before retrying; do not submit an invalid paid create request. For release, ask the user to confirm the target instance and power-off state before calling `release`.
 
 ## References
 
