@@ -1,21 +1,11 @@
 .env
 node_modules/
 dist/
+coverage/
 
-_query_*.py
 test-deploy.json
-
-# Test intermediate files
-.pytest_cache/
 __pycache__/
-.coverage
-coverage.xml
-htmlcov/
-test/__pycache__/
-tests/__pycache__/
 *.pyc
-*.pyo
-.mypy_cache/
 
 # Local IDE config
 .claude/

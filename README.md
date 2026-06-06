@@ -1,174 +1,95 @@
-# autodl-elastic-deploy
+# AutoDL Skills
 
-An agent skill for batch scheduling and managing GPU containers via the AutoDL Private Cloud Elastic Deployment API.
+This repository contains two Node.js-backed Agent Skills for AutoDL. Both share TypeScript source and tests at the repository root, but each skill keeps its own runtime host, token variables, CLI entrypoint, and local `.env`.
 
-## Install
+## Skills
 
-```bash
-npx skills add https://github.com/cyicz123/autodl-elastic-deploy --skill autodl-elastic-deploy
-```
+| Skill | Cloud context | Default host | Host override | Primary token |
+|---|---|---|---|---|
+| `skills/autodl-elastic-deploy` | AutoDL private cloud elastic deployment | `https://private.autodl.com` | `AUTODL_ELASTIC_HOST` | `AUTODL_ELASTIC_TOKEN` |
+| `skills/autodl-instance-pro` | AutoDL public cloud container instance Pro | `https://api.autodl.com` | `AUTODL_PRO_HOST` | `AUTODL_PRO_TOKEN` |
 
-### Options
+`AUTODL_TOKEN` is kept only as a compatibility fallback. Skill-specific token variables always win.
 
-| Option | Example | Description |
-|--------|---------|-------------|
-| Global install | `-g` | Install to user directory instead of project |
-| Target agents | `-a cursor -a claude-code` | Install to specific agents |
-
-## What It Does
-
-This skill enables your coding agent to interact with [AutoDL Private Cloud](https://private.autodl.com) for GPU container orchestration. The agent can:
-
-- **Queued submission** — auto-validate config, poll for GPU availability, then submit
-- **Create deployments** — ReplicaSet, Job, or single Container
-- **Monitor containers** — query status, events, SSH info
-- **Scale dynamically** — adjust replica count on the fly
-- **Manage lifecycle** — stop, delete deployments and containers
-- **Check GPU stock** — view available GPU inventory before deploying
-
-## Setup
-
-### 1. Get Your Token
-
-Navigate to **AutoDL Console → Settings → Developer Token** and copy your token.
-
-### 2. Configure
-
-Copy the example env file and fill in your token:
+## Build And Test
 
 ```bash
-cp .env.example .env
+npm install
+npm run build
+npm test
 ```
+
+The checked-in skill entrypoints import compiled files from `dist/`, so run `npm run build` after cloning or editing TypeScript.
+
+## Elastic Deployment
+
+Use this for private-cloud elastic deployments: ReplicaSet, Job, Container, queue-submit, scaling, lifecycle, images, GPU stock, events, and blacklists.
+
+```bash
+node skills/autodl-elastic-deploy/autodl-elastic.mjs --help
+node skills/autodl-elastic-deploy/autodl-elastic.mjs queue-submit deploy.json --interval 30 --timeout 3600
+```
+
+Configure `skills/autodl-elastic-deploy/.env`:
 
 ```env
-AUTODL_TOKEN=<your_token>
+AUTODL_ELASTIC_TOKEN=your_token_here
+AUTODL_ELASTIC_HOST=https://private.autodl.com
 ```
 
-> **Note:** If `.env` is missing when the skill is activated, the agent will prompt you for the token and create it automatically.
+Elastic deployment configs use `dc_list`, `cuda_v_from`, and `cuda_v_to`.
 
-## Supported Deployment Types
+## Instance Pro
 
-| Type | Description |
-|------|-------------|
-| **ReplicaSet** | Maintains a specified number of running container replicas. Auto-scales when conditions or count change |
-| **Job** | Creates containers until the target count is completed. No new containers after completion |
-| **Container** | Creates a single container until it finishes. Equivalent to a Job with `replica_num=1` |
-
-## API Endpoints
-
-| Operation | Method | Endpoint |
-|-----------|--------|----------|
-| List images | POST | `/api/v1/dev/image/private/list` |
-| Create deployment | POST | `/api/v1/dev/deployment` |
-| List deployments | POST | `/api/v1/dev/deployment/list` |
-| List container events | POST | `/api/v1/dev/deployment/container/event/list` |
-| List containers | POST | `/api/v1/dev/deployment/container/list` |
-| Stop container | PUT | `/api/v1/dev/deployment/container/stop` |
-| Set replica count | PUT | `/api/v1/dev/deployment/replica_num` |
-| Stop deployment | PUT | `/api/v1/dev/deployment/operate` |
-| Delete deployment | DELETE | `/api/v1/dev/deployment` |
-| Set scheduling blacklist | POST | `/api/v1/dev/deployment/blacklist` |
-| Get GPU stock | GET | `/api/v1/dev/machine/gpu_stock` |
-
-## File Structure
-
-```
-autodl-elastic-deploy/
-├── skills/
-│   └── autodl-elastic-deploy/    # Skill package
-│       ├── SKILL.md              # Main skill definition (agent reads this)
-│       ├── api-reference.md      # Full API parameters & response formats
-│       ├── examples.md           # Common scenario code examples
-│       └── queue_submit.py       # Queued deployment submission script
-│       ├── .env.example          # Token configuration template
-│       └── .env                  # Your actual token (git-ignored)
-├── tests/                        # Test suite (100% coverage)
-│   ├── conftest.py
-│   ├── test_api.py
-│   ├── test_dependencies.py
-│   ├── test_fetch_gpu_stock.py
-│   ├── test_fetch_images.py
-│   ├── test_main_flow.py
-│   ├── test_token_loader.py
-│   ├── test_utils.py
-│   └── test_validate_schema.py
-├── pyproject.toml                # Project configuration & pytest settings
-├── requirements-dev.txt          # Development dependencies
-└── .gitignore
-```
-
-## Queued Submission
-
-AutoDL doesn't natively support queuing when GPU resources are unavailable. `queue_submit.py` fills this gap:
-
-1. **Validates** config schema, image existence, and GPU type availability
-2. **Polls** GPU stock until sufficient idle GPUs are found
-3. **Submits** the deployment and returns the UUID
-
-For impossible requirements (non-existent GPU types, invalid images, contradictory parameters), the script exits immediately with structured JSON errors so the agent can ask the user to correct them.
+Use this for public-cloud container instance Pro resources: create, snapshot, status, list, power on/off, release, save images, and list images. Pro API access requires personal or enterprise verification.
 
 ```bash
-python skills/autodl-elastic-deploy/queue_submit.py deploy.json --interval 30 --timeout 3600
+node skills/autodl-instance-pro/autodl-pro.mjs --help
+node skills/autodl-instance-pro/autodl-pro.mjs create --json pro-create.json
 ```
 
-| Error Type | Meaning |
-|------------|---------|
-| `validation_error` | Bad config parameters (e.g., `cpu_from > cpu_to`) |
-| `image_not_found` | Image UUID doesn't exist |
-| `gpu_type_not_found` | None of the requested GPU types exist |
-| `submission_error` | GPU available but API rejected the request |
-| `timeout` | Timed out waiting for GPU resources |
+Configure `skills/autodl-instance-pro/.env`:
 
-## Documentation
-
-| File | Description |
-|------|-------------|
-| [skills/autodl-elastic-deploy/SKILL.md](skills/autodl-elastic-deploy/SKILL.md) | Core skill instructions, concepts, and quick reference |
-| [skills/autodl-elastic-deploy/queue_submit.py](skills/autodl-elastic-deploy/queue_submit.py) | Queued submission with validation and GPU polling |
-| [skills/autodl-elastic-deploy/api-reference.md](skills/autodl-elastic-deploy/api-reference.md) | Complete API parameters, response schemas, and gotchas |
-| [skills/autodl-elastic-deploy/examples.md](skills/autodl-elastic-deploy/examples.md) | 7 ready-to-use scenario examples (deploy, scale, debug, etc.) |
-
-## Testing
-
-This project includes a comprehensive test suite with **100% code coverage**.
-
-### Install Dependencies
-
-```bash
-# Install dev dependencies
-pip install -r requirements-dev.txt
+```env
+AUTODL_PRO_TOKEN=your_token_here
+AUTODL_PRO_HOST=https://api.autodl.com
 ```
 
-### Run Tests
+Power off an instance before releasing it; the CLI does not power off implicitly.
 
-```bash
-python -m pytest -v --cov=skills/autodl-elastic-deploy
+## Install Locally
+
+For Codex/Agents skills, create directory junctions from this repository into `~/.agents/skills`.
+
+```powershell
+New-Item -ItemType Junction -Path "$env:USERPROFILE\.agents\skills\autodl-elastic-deploy" -Target "C:\Users\chengyue\Documents\Code\autodl-elastic-deploy\skills\autodl-elastic-deploy"
+New-Item -ItemType Junction -Path "$env:USERPROFILE\.agents\skills\autodl-instance-pro" -Target "C:\Users\chengyue\Documents\Code\autodl-elastic-deploy\skills\autodl-instance-pro"
 ```
 
-### Test Structure
+If those paths already exist, inspect their targets before replacing them.
 
-| Test File | Coverage |
-|-----------|----------|
-| `test_token_loader.py` | Token loading from env/file |
-| `test_utils.py` | Helper functions (JSON output, config loader) |
-| `test_validate_schema.py` | Config validation logic |
-| `test_api.py` | API wrapper functions |
-| `test_fetch_images.py` | Image fetching with pagination |
-| `test_fetch_gpu_stock.py` | GPU stock parsing |
-| `test_main_flow.py` | End-to-end deployment flow |
-| `test_dependencies.py` | Dependency checking (curl, jq) |
+## Repository Layout
 
-## Compatibility
-
-This skill works with any agent that supports the [Agent Skills specification](https://agentskills.io):
-
-| Agent | Status |
-|-------|--------|
-| Cursor | Supported |
-| Claude Code | Supported |
-| Codex | Supported |
-| OpenCode | Supported |
-| Other agents | Should work if the agent supports SKILL.md |
+```text
+skills/
+  autodl-elastic-deploy/
+    SKILL.md
+    autodl-elastic.mjs
+    .env.example
+    api-reference.md
+    examples.md
+  autodl-instance-pro/
+    SKILL.md
+    autodl-pro.mjs
+    .env.example
+    api-reference.md
+    examples.md
+src/
+  core/
+  elastic/
+  pro/
+tests-ts/
+```
 
 ## License
 
