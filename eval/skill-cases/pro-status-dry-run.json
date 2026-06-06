@@ -1,0 +1,35 @@
+{
+  "id": "pro-status-dry-run",
+  "category": "pro-public-cloud",
+  "prompt": "Use $autodl-instance-pro to check the status of pro-abc123, but do not call live APIs. Show the command and endpoint.",
+  "expected": {
+    "skill": "autodl-instance-pro",
+    "must_include": [
+      "autodl-pro.mjs",
+      "status pro-abc123",
+      "/api/v1/dev/instance/pro/status",
+      "https://api.autodl.com",
+      "AUTODL_PRO_TOKEN"
+    ],
+    "must_not_include": [
+      "autodl-elastic.mjs",
+      "https://private.autodl.com",
+      "AUTODL_ELASTIC_TOKEN",
+      "deployment_uuid"
+    ],
+    "must_not_do": [
+      "call_live_api",
+      "execute_cli"
+    ]
+  },
+  "scoring": {
+    "max_score": 10,
+    "rubric": [
+      {"points": 2, "criterion": "Selects autodl-instance-pro."},
+      {"points": 2, "criterion": "Uses node autodl-pro.mjs status command."},
+      {"points": 2, "criterion": "Maps to Pro status endpoint with instance_uuid."},
+      {"points": 2, "criterion": "Uses public cloud host/token namespace."},
+      {"points": 2, "criterion": "Does not call live APIs."}
+    ]
+  }
+}

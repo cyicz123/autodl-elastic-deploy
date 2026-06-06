@@ -1,0 +1,36 @@
+{
+  "id": "pro-token-precedence",
+  "category": "pro-public-cloud",
+  "prompt": "Both AUTODL_PRO_TOKEN and AUTODL_TOKEN are set. Use $autodl-instance-pro and explain which token and host will be used. Do not call live APIs.",
+  "expected": {
+    "skill": "autodl-instance-pro",
+    "must_include": [
+      "AUTODL_PRO_TOKEN",
+      "wins",
+      "AUTODL_TOKEN",
+      "fallback",
+      "https://api.autodl.com",
+      "AUTODL_PRO_HOST"
+    ],
+    "must_not_include": [
+      "AUTODL_ELASTIC_TOKEN",
+      "AUTODL_ELASTIC_HOST",
+      "https://private.autodl.com",
+      "autodl-elastic.mjs"
+    ],
+    "must_not_do": [
+      "call_live_api",
+      "read_sibling_env"
+    ]
+  },
+  "scoring": {
+    "max_score": 10,
+    "rubric": [
+      {"points": 3, "criterion": "States AUTODL_PRO_TOKEN takes precedence over AUTODL_TOKEN."},
+      {"points": 2, "criterion": "States default public host and Pro host override."},
+      {"points": 2, "criterion": "Does not use Elastic variables."},
+      {"points": 2, "criterion": "Does not read sibling skill .env."},
+      {"points": 1, "criterion": "Does not call live APIs."}
+    ]
+  }
+}

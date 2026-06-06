@@ -1,0 +1,37 @@
+{
+  "id": "pro-create-validation",
+  "category": "pro-public-cloud",
+  "prompt": "Use $autodl-instance-pro to validate a create config with req_gpu_amount=5 and expand_system_disk_by_gb=600. Do not call live APIs.",
+  "expected": {
+    "skill": "autodl-instance-pro",
+    "must_include": [
+      "autodl-pro.mjs",
+      "create --json",
+      "req_gpu_amount",
+      "1 through 4",
+      "expand_system_disk_by_gb",
+      "0 through 500",
+      "validation_error"
+    ],
+    "must_not_include": [
+      "autodl-elastic.mjs",
+      "queue-submit",
+      "AUTODL_ELASTIC_TOKEN",
+      "https://private.autodl.com"
+    ],
+    "must_not_do": [
+      "call_live_api",
+      "execute_cli"
+    ]
+  },
+  "scoring": {
+    "max_score": 10,
+    "rubric": [
+      {"points": 2, "criterion": "Selects Pro skill."},
+      {"points": 3, "criterion": "Identifies both documented numeric range violations."},
+      {"points": 2, "criterion": "Treats issue as local validation before API calls."},
+      {"points": 1, "criterion": "Mentions create --json usage."},
+      {"points": 2, "criterion": "Does not use Elastic tooling or live calls."}
+    ]
+  }
+}

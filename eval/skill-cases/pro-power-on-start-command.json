@@ -1,0 +1,36 @@
+{
+  "id": "pro-power-on-start-command",
+  "category": "pro-public-cloud",
+  "prompt": "Use $autodl-instance-pro to power on pro-abc123 with start command 'bash /root/start.sh'. Do not call live APIs; show payload.",
+  "expected": {
+    "skill": "autodl-instance-pro",
+    "must_include": [
+      "autodl-pro.mjs",
+      "power-on pro-abc123",
+      "--start-command",
+      "bash /root/start.sh",
+      "payload",
+      "gpu"
+    ],
+    "must_not_include": [
+      "autodl-elastic.mjs",
+      "set-replicas",
+      "deployment_uuid",
+      "https://private.autodl.com"
+    ],
+    "must_not_do": [
+      "call_live_api",
+      "execute_cli"
+    ]
+  },
+  "scoring": {
+    "max_score": 10,
+    "rubric": [
+      {"points": 2, "criterion": "Selects Pro skill."},
+      {"points": 2, "criterion": "Uses power-on command with start-command flag."},
+      {"points": 2, "criterion": "Shows payload gpu and start_command semantics."},
+      {"points": 2, "criterion": "Does not use Elastic scale/deployment commands."},
+      {"points": 2, "criterion": "Does not call live API."}
+    ]
+  }
+}

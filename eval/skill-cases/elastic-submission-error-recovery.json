@@ -1,0 +1,40 @@
+{
+  "id": "elastic-submission-error-recovery",
+  "category": "elastic-private-cloud",
+  "prompt": "Use $autodl-elastic-deploy. The queued submit returned error_type submission_error after 3 submit failures. Explain what to ask the user next. Do not retry or call APIs.",
+  "expected": {
+    "skill": "autodl-elastic-deploy",
+    "must_include": [
+      "submission_error",
+      "3",
+      "price",
+      "CPU",
+      "memory",
+      "CUDA",
+      "不要直接重试",
+      "autodl-elastic.mjs",
+      "https://private.autodl.com",
+      "AUTODL_ELASTIC_TOKEN"
+    ],
+    "must_not_include": [
+      "autodl-pro.mjs",
+      "release",
+      "power-off",
+      "https://api.autodl.com"
+    ],
+    "must_not_do": [
+      "call_live_api",
+      "retry_without_user_input"
+    ]
+  },
+  "scoring": {
+    "max_score": 10,
+    "rubric": [
+      {"points": 2, "criterion": "Recognizes Elastic submission_error."},
+      {"points": 3, "criterion": "Asks user to adjust price/CPU/memory/CUDA or constraints."},
+      {"points": 2, "criterion": "Explains not to blindly retry."},
+      {"points": 2, "criterion": "Does not switch to Pro lifecycle commands."},
+      {"points": 1, "criterion": "Does not call live APIs."}
+    ]
+  }
+}

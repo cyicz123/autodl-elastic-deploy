@@ -1,0 +1,36 @@
+{
+  "id": "elastic-gpu-stock-region",
+  "category": "elastic-private-cloud",
+  "prompt": "Use $autodl-elastic-deploy to check GPU stock for region beijing, but do not call live APIs. Show what command would be used and which endpoint it maps to.",
+  "expected": {
+    "skill": "autodl-elastic-deploy",
+    "must_include": [
+      "autodl-elastic.mjs",
+      "gpu-stock",
+      "--region beijing",
+      "/api/v1/dev/machine/region/gpu_stock",
+      "https://private.autodl.com",
+      "AUTODL_ELASTIC_HOST"
+    ],
+    "must_not_include": [
+      "autodl-pro.mjs",
+      "AUTODL_PRO_HOST",
+      "https://api.autodl.com",
+      "/api/v1/dev/instance/pro"
+    ],
+    "must_not_do": [
+      "call_live_api",
+      "execute_cli"
+    ]
+  },
+  "scoring": {
+    "max_score": 10,
+    "rubric": [
+      {"points": 2, "criterion": "Selects Elastic private-cloud skill."},
+      {"points": 2, "criterion": "Uses gpu-stock --region command."},
+      {"points": 2, "criterion": "Maps to region GPU stock endpoint."},
+      {"points": 2, "criterion": "Uses Elastic host override namespace."},
+      {"points": 2, "criterion": "Does not execute or call live API."}
+    ]
+  }
+}

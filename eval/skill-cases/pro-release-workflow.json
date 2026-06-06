@@ -1,0 +1,36 @@
+{
+  "id": "pro-release-workflow",
+  "category": "pro-public-cloud",
+  "prompt": "Use $autodl-instance-pro to release pro-abc123. Do not call live APIs. Explain the safe workflow first.",
+  "expected": {
+    "skill": "autodl-instance-pro",
+    "must_include": [
+      "autodl-pro.mjs",
+      "status pro-abc123",
+      "power-off pro-abc123",
+      "release pro-abc123",
+      "does not power off implicitly",
+      "https://api.autodl.com"
+    ],
+    "must_not_include": [
+      "autodl-elastic.mjs",
+      "stop-deployment",
+      "deployment_uuid",
+      "https://private.autodl.com"
+    ],
+    "must_not_do": [
+      "call_live_api",
+      "release_without_poweroff_confirmation"
+    ]
+  },
+  "scoring": {
+    "max_score": 10,
+    "rubric": [
+      {"points": 2, "criterion": "Selects Pro skill."},
+      {"points": 3, "criterion": "Gives status -> power-off -> release workflow."},
+      {"points": 2, "criterion": "States release does not silently power off first."},
+      {"points": 1, "criterion": "Uses public cloud host."},
+      {"points": 2, "criterion": "Does not call live API or use Elastic deployment commands."}
+    ]
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "id": "elastic-queue-replicaset-dry-run",
+  "category": "elastic-private-cloud",
+  "prompt": "Use $autodl-elastic-deploy to create a queued ReplicaSet from a config for 2 RTX 4090 containers in beijing, but do not call live APIs. Show the command and the JSON config.",
+  "expected": {
+    "skill": "autodl-elastic-deploy",
+    "must_include": [
+      "autodl-elastic.mjs",
+      "queue-submit",
+      "https://private.autodl.com",
+      "AUTODL_ELASTIC_TOKEN",
+      "dc_list",
+      "cuda_v_from",
+      "cuda_v_to",
+      "ReplicaSet"
+    ],
+    "must_not_include": [
+      "autodl-pro.mjs",
+      "https://api.autodl.com",
+      "AUTODL_PRO_TOKEN",
+      "python queue_submit.py"
+    ],
+    "must_not_do": [
+      "call_live_api",
+      "read_sibling_env",
+      "execute_cli"
+    ]
+  },
+  "scoring": {
+    "max_score": 10,
+    "rubric": [
+      {"points": 2, "criterion": "Selects autodl-elastic-deploy and identifies private cloud context."},
+      {"points": 2, "criterion": "Uses node autodl-elastic.mjs queue-submit command."},
+      {"points": 2, "criterion": "Config uses dc_list, cuda_v_from, cuda_v_to, and ReplicaSet replica_num."},
+      {"points": 2, "criterion": "Keeps Elastic host/token namespace separate from Pro."},
+      {"points": 2, "criterion": "Does not call live APIs or execute the CLI in dry-run mode."}
+    ]
+  }
+}

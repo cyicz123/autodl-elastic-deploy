@@ -1,0 +1,35 @@
+{
+  "id": "ambiguous-cloud-context-clarify",
+  "category": "negative-clarification",
+  "prompt": "Create an AutoDL GPU container for me, but do not call live APIs. I did not say whether this is private elastic deployment or public Pro.",
+  "expected": {
+    "skill": "none",
+    "must_include": [
+      "clarify",
+      "private cloud elastic deployment",
+      "public cloud instance Pro",
+      "do not call live APIs"
+    ],
+    "must_not_include": [
+      "node skills/autodl-elastic-deploy/autodl-elastic.mjs queue-submit",
+      "node skills/autodl-instance-pro/autodl-pro.mjs create",
+      "AUTODL_ELASTIC_TOKEN",
+      "AUTODL_PRO_TOKEN"
+    ],
+    "must_not_do": [
+      "call_live_api",
+      "choose_cloud_without_context",
+      "execute_cli"
+    ]
+  },
+  "scoring": {
+    "max_score": 10,
+    "rubric": [
+      {"points": 3, "criterion": "Asks a clarification question instead of choosing a cloud context."},
+      {"points": 2, "criterion": "Names the two possible contexts accurately."},
+      {"points": 2, "criterion": "Does not generate a concrete CLI command as if context were known."},
+      {"points": 2, "criterion": "Respects no-live-API instruction."},
+      {"points": 1, "criterion": "Avoids token setup until context is selected."}
+    ]
+  }
+}

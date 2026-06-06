@@ -1,0 +1,37 @@
+{
+  "id": "elastic-legacy-cuda-migration",
+  "category": "elastic-private-cloud",
+  "prompt": "Use $autodl-elastic-deploy to review this config without calling live APIs: it has container_template.cuda_v = 118 but no cuda_v_from/cuda_v_to. What should be fixed?",
+  "expected": {
+    "skill": "autodl-elastic-deploy",
+    "must_include": [
+      "autodl-elastic.mjs",
+      "validation_error",
+      "cuda_v_from",
+      "cuda_v_to",
+      "旧字段",
+      "AUTODL_ELASTIC_TOKEN"
+    ],
+    "must_not_include": [
+      "autodl-pro.mjs",
+      "AUTODL_PRO_TOKEN",
+      "https://api.autodl.com",
+      "python queue_submit.py"
+    ],
+    "must_not_do": [
+      "call_live_api",
+      "execute_cli",
+      "silently_rewrite_without_explaining"
+    ]
+  },
+  "scoring": {
+    "max_score": 10,
+    "rubric": [
+      {"points": 2, "criterion": "Selects Elastic skill and private cloud context."},
+      {"points": 3, "criterion": "Identifies cuda_v as deprecated and requires cuda_v_from/cuda_v_to."},
+      {"points": 2, "criterion": "Explains this is a local validation issue before API calls."},
+      {"points": 1, "criterion": "Mentions Elastic token namespace."},
+      {"points": 2, "criterion": "Does not call live APIs or use Pro tooling."}
+    ]
+  }
+}

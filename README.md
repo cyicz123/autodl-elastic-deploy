@@ -21,6 +21,16 @@ npm test
 
 The checked-in skill entrypoints import compiled files from `dist/`, so run `npm run build` after cloning or editing TypeScript.
 
+## Skill Eval Dataset
+
+Offline skill-correctness cases live in `eval/skill-cases/`. They cover private-cloud Elastic, public-cloud Pro, and ambiguous cloud-context prompts. Each case includes the prompt, expected skill, required/forbidden response content, forbidden actions such as live API calls, and a 10-point rubric.
+
+The dataset integrity is checked by:
+
+```bash
+node --test tests-ts/skill-eval-dataset.test.mjs
+```
+
 ## Elastic Deployment
 
 Use this for private-cloud elastic deployments: ReplicaSet, Job, Container, queue-submit, scaling, lifecycle, images, GPU stock, events, and blacklists.
@@ -89,6 +99,8 @@ src/
   elastic/
   pro/
 tests-ts/
+eval/
+  skill-cases/
 ```
 
 ## License
