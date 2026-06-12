@@ -1,0 +1,40 @@
+{
+  "id": "sync-push-dry-run",
+  "category": "sync-rclone",
+  "prompt": "Use the autodl skill to incrementally push my local ./runs directory to an elastic container over SSH, but do not call live APIs. Show the command only.",
+  "expected": {
+    "skill": "autodl",
+    "namespace": "sync",
+    "must_include": [
+      "rclone",
+      "rclone copy",
+      "--dry-run",
+      "autodl.mjs elastic containers",
+      "rclone obscure",
+      ":sftp:",
+      "not executed",
+      "no live API call"
+    ],
+    "must_not_include": [
+      "git push",
+      "public repo",
+      "公共仓库",
+      "rclone sync ./runs"
+    ],
+    "must_not_do": [
+      "call_live_api",
+      "run_sync_without_confirmation",
+      "put_plaintext_password_on_command_line"
+    ]
+  },
+  "scoring": {
+    "max_score": 10,
+    "rubric": [
+      {"points": 2, "criterion": "Recognizes sync is rclone-over-SSH, not a public-repo intermediary."},
+      {"points": 2, "criterion": "Derives SSH info from autodl.mjs elastic containers."},
+      {"points": 2, "criterion": "Uses rclone copy (safe, no delete) and obscured password via env, not plaintext."},
+      {"points": 2, "criterion": "Offers a --dry-run preview before any real transfer."},
+      {"points": 2, "criterion": "Does not execute or call live APIs."}
+    ]
+  }
+}
